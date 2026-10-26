@@ -20,7 +20,7 @@ test("player can start and complete the synthetic quest", async ({ page }) => {
 
   await page.getByRole("button", { name: "Solve riddle" }).click();
   await expect(page.locator('[data-objective="riddle"]')).toHaveAttribute("data-complete", "true");
-  await expect(page.getByText("Demo reward unlocked.")).toBeVisible();
+  await expect(page.locator("#reward")).toBeVisible();
   await expect(page.getByRole("status")).toHaveText("Quest complete. Demo reward unlocked.");
 });
 
