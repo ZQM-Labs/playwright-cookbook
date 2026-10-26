@@ -41,7 +41,7 @@ Game developers building repeatable browser playtests and regression checks for 
 
 ### 02 — Quest-flow checks (implemented foundation)
 
-The first suite now verifies that later objectives stay disabled until prerequisites are met and that reloading resets the synthetic fixture. Duplicate objective events are now tested against the local fixture. Interrupted-session recovery and backend persistence remain future cases.
+The first suite now verifies that later objectives stay disabled until prerequisites are met and that saved local progress restores after reload, including completed objectives and reward visibility. Duplicate objective events are also tested against the local fixture. This is browser-local recovery only; it is not account sync or backend persistence.
 
 ### 03 — Screenshots and viewports (planned)
 
@@ -90,7 +90,7 @@ playwright-cookbook/
 
 ## Roadmap
 
-1. Add interrupted-session recovery cases and a separate backend-persistence integration recipe.
+1. Add a separate backend-persistence integration recipe; current recovery is browser-local only.
 2. Commit and maintain a lockfile for reproducible dependency resolution.
 3. Add controlled screenshot testing at selected viewport sizes.
 4. Add an integration recipe that runs against an explicitly configured local game build.
