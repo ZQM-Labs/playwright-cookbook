@@ -31,3 +31,28 @@ test("quest controls support keyboard activation", async ({ page }) => {
   await page.keyboard.press("Enter");
   await expect(page.getByRole("status")).toHaveText("Quest started. Find the lantern.");
 });
+
+test("objectives cannot be skipped and reload resets the local fixture", async ({ page }) => {
+  await page.goto(questUrl);
+
+  const start = page.getByRole("button", { name: "Start quest" });
+  const lantern = page.getByRole("button", { name: "Find lantern" });
+  const riddle = page.getByRole("button", { name: "Solve riddle" });
+
+  await expect(lantern).toBeDisabled();
+  await expect(riddle).toBeDisabled();
+
+  await start.click();
+  await expect(lantern).toBeEnabled();
+  await expect(riddle).toBeDisabled();
+
+  await lantern.click();
+  await expect(riddle).toBeEnabled();
+
+  await page.reload();
+  await expect(page.getByRole("status")).toHaveText("Quest not started.");
+  await expect(start).toBeEnabled();
+  await expect(lantern).toBeDisabled();
+  await expect(riddle).toBeDisabled();
+  await expect(page.locator("#reward")).toBeHidden();
+});
