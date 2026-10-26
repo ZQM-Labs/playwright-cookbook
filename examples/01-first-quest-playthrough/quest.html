@@ -44,14 +44,14 @@
         status.textContent = "Quest started. Find the lantern.";
       });
       lantern.addEventListener("click", () => {
-        if (!started) return;
+        if (!started || objective("lantern").dataset.complete === "true") return;
         objective("lantern").dataset.complete = "true";
         lantern.disabled = true;
         riddle.disabled = false;
         status.textContent = "Lantern found. Solve the riddle.";
       });
       riddle.addEventListener("click", () => {
-        if (!started || objective("lantern").dataset.complete !== "true") return;
+        if (!started || objective("lantern").dataset.complete !== "true" || objective("riddle").dataset.complete === "true") return;
         objective("riddle").dataset.complete = "true";
         riddle.disabled = true;
         reward.hidden = false;
