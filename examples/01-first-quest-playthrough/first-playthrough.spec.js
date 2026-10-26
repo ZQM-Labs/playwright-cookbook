@@ -149,3 +149,37 @@ test("quest remains usable when browser storage is unavailable", async ({ page }
   await expect(page.getByRole("status")).toHaveText("Quest not started.");
   await expect(page.locator("#reward")).toBeHidden();
 });
+
+
+test("quest remains usable when browser storage writes fail", async ({ page }) => {
+  await page.addInitScript(() => {
+    const originalGetItem = Storage.prototype.getItem;
+    Object.defineProperty(Storage.prototype, "setItem", {
+      configurable: true,
+      value() {
+        throw new DOMException("Storage quota exceeded", "QuotaExceededError");
+      },
+    });
+    // Preserve normal reads so this isolates persistence failures from read failures.
+    Object.defineProperty(Storage.prototype, "getItem", {
+      configurable: true,
+      value(key) {
+        return originalGetItem.call(this, key);
+      },
+    });
+  });
+
+  await page.goto(questUrl);
+  await page.getByRole("button", { name: "Start quest" }).click();
+  await expect(page.getByRole("status")).toHaveText("Quest started. Find the lantern.");
+  await page.getByRole("button", { name: "Find lantern" }).click();
+  await expect(page.getByRole("status")).toHaveText("Lantern found. Solve the riddle.");
+  await page.getByRole("button", { name: "Solve riddle" }).click();
+  await expect(page.getByRole("status")).toHaveText("Quest complete. Demo reward unlocked.");
+  await expect(page.locator("#reward")).toBeVisible();
+
+  // UI state remains correct in the current page, but failed writes cannot survive reload.
+  await page.reload();
+  await expect(page.getByRole("status")).toHaveText("Quest not started.");
+  await expect(page.locator("#reward")).toBeHidden();
+});
