@@ -97,6 +97,26 @@ playwright-cookbook/
 4. Add an integration recipe that runs against an explicitly configured local game build.
 5. Expand browser coverage only when the CI runtime and test matrix are maintained.
 
+## How this cookbook connects to the ZQM Labs stack
+
+Use this repository as the **behavioral verification layer** across the game client and backend boundaries. A passing synthetic browser test proves only the behavior of its configured fixture.
+
+| System under test | Related cookbook | What to verify |
+|---|---|---|
+| Game client and scene behavior | [Godot Cookbook](https://github.com/ZQM-Labs/godot-cookbook) | User-visible interactions, keyboard operation, viewport behavior, and the documented engine/runtime version. |
+| Authentication and private player data | [PocketBase Cookbook](https://github.com/ZQM-Labs/pocketbase-cookbook) | Authenticated own-profile access, cross-player denial, unauthenticated list/direct-read denial, and owner-mutation rejection. |
+| Paid checkout and fulfillment | [Stripe Cookbook](https://github.com/ZQM-Labs/stripe-cookbook) | Verified webhook handling, duplicate/replay behavior, and entitlement grant/denial against a disposable integration environment. |
+
+### Test-boundary rules
+
+- Keep the default examples local and synthetic. Do not silently retarget tests at production.
+- Separate browser-only UI assertions from API authorization tests and payment-provider event tests.
+- For end-to-end coverage, define a dedicated disposable environment, seed synthetic identities/orders, and document cleanup before running mutations.
+- Assert the authoritative server state for purchases and entitlements; a visible success page or client-side unlock is not proof of payment.
+- Report each boundary independently so a green fixture suite cannot be mistaken for full-stack certification.
+
+These cookbooks are **not currently wired into one shared test harness**. Cross-repository links describe ownership and handoff contracts; an integrated pipeline still needs explicit environment provisioning, compatible test data, API contracts, and cleanup procedures.
+
 ## Contributing
 
 Each recipe should include a runnable fixture or clearly defined test target, exact commands, expected outcomes, known limitations, and privacy-safe artifacts. Report security issues to <zqmcomputing@gmail.com> — please do not open a public issue for those.
