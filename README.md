@@ -43,9 +43,9 @@ Game developers building repeatable browser playtests and regression checks for 
 
 The first suite now verifies that later objectives stay disabled until prerequisites are met and that saved local progress restores after reload, including completed objectives and reward visibility. Duplicate objective events are also tested against the local fixture. This is browser-local recovery only; it is not account sync or backend persistence.
 
-### 03 — Screenshots and viewports (planned)
+### 03 — Narrow viewport usability (implemented foundation)
 
-Stable screenshots across chosen viewports, with explicit handling for animation, fonts, and nondeterministic content.
+The first quest suite runs at a 320-pixel viewport and checks for horizontal overflow, in-viewport controls, minimum 44-pixel button height, and successful completion. This is a focused layout smoke test, not a full device/browser matrix or screenshot baseline.
 
 ### 04 — CI headless runs (implemented foundation)
 
@@ -81,6 +81,7 @@ playwright-cookbook/
 ## Engineering principles
 
 - Prefer accessible roles and labels over brittle CSS selectors.
+- Include a narrow-viewport smoke test for critical player flows; test keyboard operation and visible control bounds, not just desktop rendering.
 - Assert user-visible state and meaningful transitions, not implementation details alone.
 - Test both permitted and denied flows as a game adds authorization-sensitive behavior.
 - Keep demo fixtures synthetic and offline where possible.
@@ -92,7 +93,7 @@ playwright-cookbook/
 
 1. Add a separate backend-persistence integration recipe; current recovery is browser-local only.
 2. Commit and maintain a lockfile for reproducible dependency resolution.
-3. Add controlled screenshot testing at selected viewport sizes.
+3. Expand viewport coverage to selected phone/tablet widths and add controlled screenshot testing only where visual baselines provide value.
 4. Add an integration recipe that runs against an explicitly configured local game build.
 5. Expand browser coverage only when the CI runtime and test matrix are maintained.
 
