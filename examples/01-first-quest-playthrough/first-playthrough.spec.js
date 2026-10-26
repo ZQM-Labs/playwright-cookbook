@@ -183,3 +183,32 @@ test("quest remains usable when browser storage writes fail", async ({ page }) =
   await expect(page.getByRole("status")).toHaveText("Quest not started.");
   await expect(page.locator("#reward")).toBeHidden();
 });
+
+
+test("quest remains operable on a narrow mobile viewport", async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 568 });
+  await page.goto(questUrl);
+
+  const layout = await page.evaluate(() => ({
+    viewportWidth: document.documentElement.clientWidth,
+    documentWidth: document.documentElement.scrollWidth,
+    buttons: [...document.querySelectorAll("button")].map((button) => {
+      const rect = button.getBoundingClientRect();
+      return { left: rect.left, right: rect.right, width: rect.width, height: rect.height };
+    }),
+  }));
+
+  expect(layout.documentWidth).toBeLessThanOrEqual(layout.viewportWidth);
+  expect(layout.buttons).toHaveLength(3);
+  for (const button of layout.buttons) {
+    expect(button.left).toBeGreaterThanOrEqual(0);
+    expect(button.right).toBeLessThanOrEqual(layout.viewportWidth);
+    expect(button.height).toBeGreaterThanOrEqual(44);
+  }
+
+  await page.getByRole("button", { name: "Start quest" }).click();
+  await page.getByRole("button", { name: "Find lantern" }).click();
+  await page.getByRole("button", { name: "Solve riddle" }).click();
+  await expect(page.getByRole("status")).toHaveText("Quest complete. Demo reward unlocked.");
+  await expect(page.locator("#reward")).toBeVisible();
+});
