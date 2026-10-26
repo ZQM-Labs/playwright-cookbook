@@ -41,7 +41,7 @@ Game developers building repeatable browser playtests and regression checks for 
 
 ### 02 — Quest-flow checks (planned)
 
-Negative cases, disabled actions, invalid objective order, duplicate activation, and reload/state-reset behavior.
+Negative cases, invalid objective order, duplicate activation, reload/state-reset behavior, and recovery from interrupted quests.
 
 ### 03 — Screenshots and viewports (planned)
 
@@ -49,19 +49,19 @@ Stable screenshots across chosen viewports, with explicit handling for animation
 
 ### 04 — CI headless runs (implemented foundation)
 
-[Workflow](.github/workflows/examples.yml) installs the pinned Playwright test package and Chromium, then runs the first playthrough on pull requests and pushes to main. Browser coverage is Chromium-only until additional projects are deliberately configured.
+[Workflow](.github/workflows/examples.yml) installs the declared Playwright test package and Chromium, then runs the first playthrough on pull requests and pushes to main. Browser coverage is Chromium-only until additional projects are deliberately configured.
 
 ## Quick start
 
 From the repository root:
 
 ```sh
-npm install --no-save @playwright/test@1.56.1
+npm install
 npx playwright install chromium
-npx playwright test
+npm test
 ```
 
-The test opens a local HTML fixture directly; no web server or network service is required for the game fixture. Browser installation may require network access.
+The test opens a local HTML fixture directly; no web server or external service is required for the game fixture. Browser installation may require network access. The manifest pins the direct Playwright dependency; until a lockfile is committed, transitive dependency versions are not fully frozen.
 
 ## Repository layout
 
@@ -73,6 +73,7 @@ playwright-cookbook/
 │       ├── quest.html
 │       ├── first-playthrough.spec.js
 │       └── README.md
+├── package.json
 ├── playwright.config.js
 └── README.md
 ```
@@ -90,9 +91,10 @@ playwright-cookbook/
 ## Roadmap
 
 1. Add negative quest-flow cases and duplicate-action handling.
-2. Add controlled screenshot testing at selected viewport sizes.
-3. Add an integration recipe that runs against an explicitly configured local game build.
-4. Expand browser coverage only when the CI runtime and test matrix are maintained.
+2. Commit and maintain a lockfile for reproducible dependency resolution.
+3. Add controlled screenshot testing at selected viewport sizes.
+4. Add an integration recipe that runs against an explicitly configured local game build.
+5. Expand browser coverage only when the CI runtime and test matrix are maintained.
 
 ## Contributing
 
