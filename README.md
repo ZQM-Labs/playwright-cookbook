@@ -11,51 +11,89 @@
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 
-A **Playwright cookbook** for web game QA: automated playthroughs, quest-flow checks, and screenshots. Patterns are written for browser games, where the playtester is a script driving the real player path — quest start, objectives, unlocks, and leaderboards — headlessly. It is intended for game developers who want every build playtested before players touch it. Validate each pattern against your own game, Playwright version, and operating environment before adopting it. Examples use synthetic players only, never real player accounts or data.
+A **Playwright cookbook** for browser-game QA: automated quest playthroughs, flow assertions, and visual checks. Examples use synthetic players and local fixtures unless a recipe explicitly documents an external test environment. Never commit real player data, credentials, session cookies, or production traces.
 
 ## Repository role and status
 
-**Status:** Active, public — seeding. Pattern passes land in follow-up work; the table below lists what is planned, not what is already written.
+**Status:** Active, public — first automated playthrough implemented.
 
-**What this repository is:** Playwright patterns for web game QA — playthroughs, flow checks, and screenshots.
+**What this repository is:** Practical Playwright recipes for testing the public player path through browser games, from quest start and objective progression to completion and failure states.
 
-**What it contributes:** Part of the ZQM Labs game-development portfolio, and a sibling to the ZQM Computing geospatial cookbook series.
+**What it contributes:** Part of the ZQM Labs game-development portfolio. It complements ZQM Computing's geospatial cookbooks by validating interactive game behavior rather than spatial data processing.
 
-**Standing:** This repository is maintained independently. Automated checks cover only the paths and environments configured in its workflows; they do not establish production readiness or operational certification.
+**Quality bar:** Pin test tooling, use stable accessible selectors, assert visible outcomes, isolate fixtures from production services, and document what each test does not prove. A green synthetic fixture is not evidence that a live backend or paid fulfillment path works.
 
 ## Who this is for
 
-Game developers who want automated, repeatable playtesting for browser games.
+Game developers building repeatable browser playtests and regression checks for quest-style games.
 
 ## Prerequisites
 
-- Node.js and Playwright (version pinned per pattern at fill time)
-- A locally servable build of the game under test
-- A headless-capable environment (CI or a dev machine)
+- Node.js 20+
+- Chromium installed by Playwright
+- No live accounts or external game services for the first example
 
-## Patterns (planned)
+## Patterns
 
-| # | Example | What it will demonstrate |
-|---|---------|--------------------------|
-| 01 | `01-first-playthrough` | A first automated playthrough: launch, start, and finish a quest |
-| 02 | `02-quest-flow-checks` | Assertions on quest state: objectives, unlocks, and leaderboard updates |
-| 03 | `03-screenshots` | Visual regression screenshots across viewports and devices |
-| 04 | `04-ci-headless` | Running the suite headlessly in CI on every build |
+### 01 — First quest playthrough (implemented)
+
+[Open the example](examples/01-first-quest-playthrough/). Drives a synthetic quest through start, ordered objectives, completion, and demo reward visibility. Includes keyboard activation and live status assertions.
+
+### 02 — Quest-flow checks (planned)
+
+Negative cases, disabled actions, invalid objective order, duplicate activation, and reload/state-reset behavior.
+
+### 03 — Screenshots and viewports (planned)
+
+Stable screenshots across chosen viewports, with explicit handling for animation, fonts, and nondeterministic content.
+
+### 04 — CI headless runs (implemented foundation)
+
+[Workflow](.github/workflows/examples.yml) installs the pinned Playwright test package and Chromium, then runs the first playthrough on pull requests and pushes to main. Browser coverage is Chromium-only until additional projects are deliberately configured.
+
+## Quick start
+
+From the repository root:
+
+```sh
+npm install --no-save @playwright/test@1.56.1
+npx playwright install chromium
+npx playwright test
+```
+
+The test opens a local HTML fixture directly; no web server or network service is required for the game fixture. Browser installation may require network access.
 
 ## Repository layout
 
 ```text
 playwright-cookbook/
-├── examples/  # one directory per pattern
-├── README.md
-└── LICENSE
+├── .github/workflows/examples.yml
+├── examples/
+│   └── 01-first-quest-playthrough/
+│       ├── quest.html
+│       ├── first-playthrough.spec.js
+│       └── README.md
+├── playwright.config.js
+└── README.md
 ```
+
+## Engineering principles
+
+- Prefer accessible roles and labels over brittle CSS selectors.
+- Assert user-visible state and meaningful transitions, not implementation details alone.
+- Test both permitted and denied flows as a game adds authorization-sensitive behavior.
+- Keep demo fixtures synthetic and offline where possible.
+- Never treat an unlocked client-side UI as proof of payment or server authorization.
+- Capture traces on failure, but review them for tokens, personal data, and sensitive URLs before sharing.
+- Distinguish fixture tests from live integration tests and production certification.
 
 ## Roadmap
 
-- First pattern pass: first playthrough (01), then quest-flow checks (02)
-- Second pass: screenshots (03) and CI headless runs (04)
+1. Add negative quest-flow cases and duplicate-action handling.
+2. Add controlled screenshot testing at selected viewport sizes.
+3. Add an integration recipe that runs against an explicitly configured local game build.
+4. Expand browser coverage only when the CI runtime and test matrix are maintained.
 
 ## Contributing
 
-A contributing guide lands with the first pattern pass. Report security issues to <zqmcomputing@gmail.com> — please do not open a public issue for those.
+Each recipe should include a runnable fixture or clearly defined test target, exact commands, expected outcomes, known limitations, and privacy-safe artifacts. Report security issues to <zqmcomputing@gmail.com> — please do not open a public issue for those.
