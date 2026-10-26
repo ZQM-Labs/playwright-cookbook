@@ -56,3 +56,24 @@ test("objectives cannot be skipped and reload resets the local fixture", async (
   await expect(riddle).toBeDisabled();
   await expect(page.locator("#reward")).toBeHidden();
 });
+
+test("duplicate objective events do not regress completed quest state", async ({ page }) => {
+  await page.goto(questUrl);
+  await page.getByRole("button", { name: "Start quest" }).click();
+  const lantern = page.getByRole("button", { name: "Find lantern" });
+  const riddle = page.getByRole("button", { name: "Solve riddle" });
+
+  await lantern.click();
+  await riddle.click();
+  await expect(page.getByRole("status")).toHaveText("Quest complete. Demo reward unlocked.");
+  await expect(page.locator("#reward")).toBeVisible();
+
+  // Dispatch duplicate DOM events to exercise the handlers even after controls disable.
+  await lantern.evaluate((button) => button.dispatchEvent(new MouseEvent("click", { bubbles: true })));
+  await riddle.evaluate((button) => button.dispatchEvent(new MouseEvent("click", { bubbles: true })));
+
+  await expect(page.locator('[data-objective="lantern"]')).toHaveAttribute("data-complete", "true");
+  await expect(page.locator('[data-objective="riddle"]')).toHaveAttribute("data-complete", "true");
+  await expect(page.getByRole("status")).toHaveText("Quest complete. Demo reward unlocked.");
+  await expect(page.locator("#reward")).toBeVisible();
+});
