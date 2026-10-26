@@ -93,3 +93,32 @@ test("duplicate objective events do not regress completed quest state", async ({
   await expect(page.getByRole("status")).toHaveText("Quest complete. Demo reward unlocked.");
   await expect(page.locator("#reward")).toBeVisible();
 });
+
+
+test("malformed or impossible saved progress fails closed to a fresh quest", async ({ page }) => {
+  await page.goto(questUrl);
+
+  await page.evaluate(() => {
+    localStorage.setItem("zqm-playwright-cookbook.quest.v1", "{not-json");
+  });
+  await page.reload();
+  await expect(page.getByRole("status")).toHaveText("Quest not started.");
+  await expect(page.getByRole("button", { name: "Start quest" })).toBeEnabled();
+  await expect(page.getByRole("button", { name: "Find lantern" })).toBeDisabled();
+  await expect(page.locator("#reward")).toBeHidden();
+
+  await page.evaluate(() => {
+    localStorage.setItem("zqm-playwright-cookbook.quest.v1", JSON.stringify({
+      version: 1,
+      started: true,
+      lanternComplete: false,
+      riddleComplete: true,
+    }));
+  });
+  await page.reload();
+  await expect(page.getByRole("status")).toHaveText("Quest not started.");
+  await expect(page.getByRole("button", { name: "Start quest" })).toBeEnabled();
+  await expect(page.getByRole("button", { name: "Find lantern" })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Solve riddle" })).toBeDisabled();
+  await expect(page.locator("#reward")).toBeHidden();
+});
