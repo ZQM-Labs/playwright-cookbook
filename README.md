@@ -39,9 +39,9 @@ Game developers building repeatable browser playtests and regression checks for 
 
 [Open the example](examples/01-first-quest-playthrough/). Drives a synthetic quest through start, ordered objectives, completion, and demo reward visibility. Includes keyboard activation and live status assertions.
 
-### 02 — Quest-flow checks (planned)
+### 02 — Quest-flow checks (implemented foundation)
 
-Negative cases, invalid objective order, duplicate activation, reload/state-reset behavior, and recovery from interrupted quests.
+The first suite now verifies that later objectives stay disabled until prerequisites are met and that reloading resets the synthetic fixture. Duplicate submissions, interrupted-session recovery, and backend persistence remain future cases.
 
 ### 03 — Screenshots and viewports (planned)
 
@@ -90,7 +90,7 @@ playwright-cookbook/
 
 ## Roadmap
 
-1. Add negative quest-flow cases and duplicate-action handling.
+1. Add duplicate-action handling and interrupted-session recovery cases.
 2. Commit and maintain a lockfile for reproducible dependency resolution.
 3. Add controlled screenshot testing at selected viewport sizes.
 4. Add an integration recipe that runs against an explicitly configured local game build.
