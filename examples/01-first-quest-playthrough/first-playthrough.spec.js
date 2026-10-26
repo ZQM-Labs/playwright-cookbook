@@ -32,7 +32,7 @@ test("quest controls support keyboard activation", async ({ page }) => {
   await expect(page.getByRole("status")).toHaveText("Quest started. Find the lantern.");
 });
 
-test("objectives cannot be skipped and reload resets the local fixture", async ({ page }) => {
+test("objectives cannot be skipped and reload restores saved local progress", async ({ page }) => {
   await page.goto(questUrl);
 
   const start = page.getByRole("button", { name: "Start quest" });
@@ -50,11 +50,27 @@ test("objectives cannot be skipped and reload resets the local fixture", async (
   await expect(riddle).toBeEnabled();
 
   await page.reload();
-  await expect(page.getByRole("status")).toHaveText("Quest not started.");
-  await expect(start).toBeEnabled();
+  await expect(page.getByRole("status")).toHaveText("Lantern found. Solve the riddle.");
+  await expect(start).toBeDisabled();
   await expect(lantern).toBeDisabled();
-  await expect(riddle).toBeDisabled();
+  await expect(riddle).toBeEnabled();
+  await expect(page.locator('[data-objective="lantern"]')).toHaveAttribute("data-complete", "true");
+  await expect(page.locator('[data-objective="riddle"]')).toHaveAttribute("data-complete", "false");
   await expect(page.locator("#reward")).toBeHidden();
+});
+
+test("completed quest state survives reload without duplicating the reward", async ({ page }) => {
+  await page.goto(questUrl);
+  await page.getByRole("button", { name: "Start quest" }).click();
+  await page.getByRole("button", { name: "Find lantern" }).click();
+  await page.getByRole("button", { name: "Solve riddle" }).click();
+
+  await page.reload();
+  await expect(page.getByRole("status")).toHaveText("Quest complete. Demo reward unlocked.");
+  await expect(page.locator("#reward")).toBeVisible();
+  await expect(page.locator('[data-objective="lantern"]')).toHaveAttribute("data-complete", "true");
+  await expect(page.locator('[data-objective="riddle"]')).toHaveAttribute("data-complete", "true");
+  await expect(page.getByRole("button", { name: "Solve riddle" })).toBeDisabled();
 });
 
 test("duplicate objective events do not regress completed quest state", async ({ page }) => {

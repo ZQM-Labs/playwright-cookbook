@@ -36,27 +36,56 @@
       const status = document.querySelector("#status");
       const reward = document.querySelector("#reward");
       const objective = (name) => document.querySelector('[data-objective="' + name + '"]');
-      let started = false;
+      const storageKey = "zqm-playwright-cookbook.quest.v1";
+      const readProgress = () => {
+        try {
+          const saved = JSON.parse(localStorage.getItem(storageKey) || "null");
+          if (!saved || saved.version !== 1 || typeof saved.started !== "boolean" ||
+              typeof saved.lanternComplete !== "boolean" || typeof saved.riddleComplete !== "boolean" ||
+              (saved.riddleComplete && !saved.lanternComplete) ||
+              (saved.lanternComplete && !saved.started)) return null;
+          return saved;
+        } catch {
+          return null;
+        }
+      };
+      let progress = readProgress() || {
+        version: 1, started: false, lanternComplete: false, riddleComplete: false,
+      };
+      const persist = () => {
+        try { localStorage.setItem(storageKey, JSON.stringify(progress)); } catch { /* Storage may be unavailable. */ }
+      };
+      const render = () => {
+        start.disabled = progress.started;
+        lantern.disabled = !progress.started || progress.lanternComplete;
+        riddle.disabled = !progress.lanternComplete || progress.riddleComplete;
+        objective("lantern").dataset.complete = String(progress.lanternComplete);
+        objective("riddle").dataset.complete = String(progress.riddleComplete);
+        reward.hidden = !progress.riddleComplete;
+        if (progress.riddleComplete) status.textContent = "Quest complete. Demo reward unlocked.";
+        else if (progress.lanternComplete) status.textContent = "Lantern found. Solve the riddle.";
+        else if (progress.started) status.textContent = "Quest started. Find the lantern.";
+        else status.textContent = "Quest not started.";
+      };
       start.addEventListener("click", () => {
-        started = true;
-        start.disabled = true;
-        lantern.disabled = false;
-        status.textContent = "Quest started. Find the lantern.";
+        if (progress.started) return;
+        progress.started = true;
+        persist();
+        render();
       });
       lantern.addEventListener("click", () => {
-        if (!started || objective("lantern").dataset.complete === "true") return;
-        objective("lantern").dataset.complete = "true";
-        lantern.disabled = true;
-        riddle.disabled = false;
-        status.textContent = "Lantern found. Solve the riddle.";
+        if (!progress.started || progress.lanternComplete) return;
+        progress.lanternComplete = true;
+        persist();
+        render();
       });
       riddle.addEventListener("click", () => {
-        if (!started || objective("lantern").dataset.complete !== "true" || objective("riddle").dataset.complete === "true") return;
-        objective("riddle").dataset.complete = "true";
-        riddle.disabled = true;
-        reward.hidden = false;
-        status.textContent = "Quest complete. Demo reward unlocked.";
+        if (!progress.started || !progress.lanternComplete || progress.riddleComplete) return;
+        progress.riddleComplete = true;
+        persist();
+        render();
       });
+      render();
     })();
   </script>
 </body>
