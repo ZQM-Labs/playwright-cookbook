@@ -17,6 +17,7 @@ jobs:
   first-playthrough:
     name: First quest playthrough (Node.js 20 / Chromium)
     runs-on: ubuntu-latest
+    timeout-minutes: 8
     defaults:
       run:
         working-directory: .
@@ -29,7 +30,7 @@ jobs:
           node-version: 20
       - name: Install pinned Playwright package
         run: npm install --no-save @playwright/test@1.56.1
-      - name: Install Chromium and OS dependencies
-        run: npx playwright install --with-deps chromium
+      - name: Install Chromium
+        run: npx playwright install chromium
       - name: Run quest playthrough
         run: npx playwright test
