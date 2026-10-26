@@ -1,0 +1,15 @@
+{
+  "name": "zqm-playwright-cookbook",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Automated browser playthrough recipes for ZQM Labs games",
+  "scripts": {
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

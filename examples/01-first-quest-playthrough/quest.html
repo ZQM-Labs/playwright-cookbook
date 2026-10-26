@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Playwright Cookbook — Quest Fixture</title>
+  <style>
+    body { font: 1rem/1.5 system-ui, sans-serif; max-width: 42rem; margin: 2rem auto; padding: 0 1rem; }
+    button { min-height: 2.75rem; padding: .6rem 1rem; margin: .25rem; }
+    li[data-complete="true"] { text-decoration: line-through; }
+    #status { min-height: 1.5em; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Lantern Trail: Test Quest</h1>
+    <p>A synthetic quest fixture. No accounts, location, or network service are used.</p>
+    <button type="button" id="start-quest">Start quest</button>
+    <section aria-labelledby="objectives-heading">
+      <h2 id="objectives-heading">Objectives</h2>
+      <ol>
+        <li data-objective="lantern" data-complete="false">Find the lantern</li>
+        <li data-objective="riddle" data-complete="false">Solve the riddle</li>
+      </ol>
+    </section>
+    <button type="button" id="find-lantern" disabled>Find lantern</button>
+    <button type="button" id="solve-riddle" disabled>Solve riddle</button>
+    <p id="status" role="status" aria-live="polite">Quest not started.</p>
+    <p id="reward" hidden>Demo reward unlocked.</p>
+  </main>
+  <script>
+    (() => {
+      const start = document.querySelector("#start-quest");
+      const lantern = document.querySelector("#find-lantern");
+      const riddle = document.querySelector("#solve-riddle");
+      const status = document.querySelector("#status");
+      const reward = document.querySelector("#reward");
+      const objective = (name) => document.querySelector('[data-objective="' + name + '"]');
+      let started = false;
+      start.addEventListener("click", () => {
+        started = true;
+        start.disabled = true;
+        lantern.disabled = false;
+        status.textContent = "Quest started. Find the lantern.";
+      });
+      lantern.addEventListener("click", () => {
+        if (!started) return;
+        objective("lantern").dataset.complete = "true";
+        lantern.disabled = true;
+        riddle.disabled = false;
+        status.textContent = "Lantern found. Solve the riddle.";
+      });
+      riddle.addEventListener("click", () => {
+        if (!started || objective("lantern").dataset.complete !== "true") return;
+        objective("riddle").dataset.complete = "true";
+        riddle.disabled = true;
+        reward.hidden = false;
+        status.textContent = "Quest complete. Demo reward unlocked.";
+      });
+    })();
+  </script>
+</body>
+</html>
