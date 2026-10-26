@@ -35,4 +35,4 @@ The reward in this fixture is presentation-only. It is not a payment, authorizat
 
 ## Limits
 
-This is a synthetic fixture and Chromium-only smoke test. Browser storage may be unavailable in some contexts; the fixture safely falls back to in-memory progress in that case. It does not establish compatibility with every browser, viewport, device, or production backend.
+This is a synthetic fixture and Chromium-only smoke test. Browser storage may be unavailable in some contexts, or writes may fail due to quota/security limits; the fixture safely falls back to in-memory progress in that case. Tests cover both storage access failure and write failure. It does not establish compatibility with every browser, viewport, device, or production backend.
