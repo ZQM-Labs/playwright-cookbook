@@ -122,3 +122,30 @@ test("malformed or impossible saved progress fails closed to a fresh quest", asy
   await expect(page.getByRole("button", { name: "Solve riddle" })).toBeDisabled();
   await expect(page.locator("#reward")).toBeHidden();
 });
+
+
+test("quest remains usable when browser storage is unavailable", async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(window, "localStorage", {
+      configurable: true,
+      get() {
+        throw new DOMException("Storage access blocked", "SecurityError");
+      },
+    });
+  });
+
+  await page.goto(questUrl);
+  await expect(page.getByRole("status")).toHaveText("Quest not started.");
+
+  await page.getByRole("button", { name: "Start quest" }).click();
+  await expect(page.getByRole("status")).toHaveText("Quest started. Find the lantern.");
+  await page.getByRole("button", { name: "Find lantern" }).click();
+  await expect(page.getByRole("status")).toHaveText("Lantern found. Solve the riddle.");
+  await page.getByRole("button", { name: "Solve riddle" }).click();
+  await expect(page.getByRole("status")).toHaveText("Quest complete. Demo reward unlocked.");
+
+  // Progress is intentionally in-memory only when storage is blocked.
+  await page.reload();
+  await expect(page.getByRole("status")).toHaveText("Quest not started.");
+  await expect(page.locator("#reward")).toBeHidden();
+});
